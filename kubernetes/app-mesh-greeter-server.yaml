@@ -1,0 +1,52 @@
+apiVersion: appmesh.k8s.aws/v1beta2
+kind: VirtualNode
+metadata:
+  name: greeter-server
+  namespace: kks-backyard-stage
+spec:
+  podSelector:
+    matchLabels:
+      app: greeter-server
+  listeners:
+    - portMapping:
+        port: 50051
+        protocol: grpc
+  serviceDiscovery:
+    awsCloudMap:
+      namespaceName: kks-backyard-stage.svc.cluster.local
+      serviceName: greeter-server
+
+---
+apiVersion: appmesh.k8s.aws/v1beta2
+kind: VirtualService
+metadata:
+  name: greeter-server
+  namespace: kks-backyard-stage
+spec:
+  awsName: greeter-server.kks-backyard-stage.svc.cluster.local
+  provider:
+    virtualRouter:
+      virtualRouterRef:
+        name: greeter-server
+
+---
+apiVersion: appmesh.k8s.aws/v1beta2
+kind: VirtualRouter
+metadata:
+  name: greeter-server
+  namespace: kks-backyard-stage
+spec:
+  listeners:
+    - portMapping:
+        port: 50051
+        protocol: grpc
+  routes:
+    - name: route
+      grpcRoute:
+        match:
+          serviceName: helloworld.Greeter
+        action:
+          weightedTargets:
+            - virtualNodeRef:
+                name: greeter-server
+              weight: 1

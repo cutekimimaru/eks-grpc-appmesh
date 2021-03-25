@@ -1,0 +1,21 @@
+apiVersion: appmesh.k8s.aws/v1beta2
+kind: VirtualNode
+metadata:
+  name: greeter-client
+  namespace: kks-backyard-stage
+spec:
+  podSelector:
+    matchLabels:
+      app: greeter-client
+  listeners:
+    - portMapping:
+        port: 8080
+        protocol: grpc
+  backends:
+    - virtualService:
+        virtualServiceRef:
+          name: greeter-server
+  serviceDiscovery:
+    awsCloudMap:
+      namespaceName: kks-backyard-stage.svc.cluster.local
+      serviceName: greeter-client
