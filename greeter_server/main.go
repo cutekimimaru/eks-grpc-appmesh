@@ -27,6 +27,9 @@ import (
 
 	pb "gitlab.kkinternal.com/kevinchang/grpc-lb/helloworld"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/status"
 )
 
 const (
@@ -49,6 +52,16 @@ func (s *server) SayHello(ctx context.Context, in *pb.HelloRequest) (*pb.HelloRe
 	return &pb.HelloReply{Message: msg}, nil
 }
 
+func (s *server) Check(ctx context.Context, in *healthpb.HealthCheckRequest) (*healthpb.HealthCheckResponse, error) {
+	log.Printf("Received Check Request: %v", in)
+	return &healthpb.HealthCheckResponse{Status: healthpb.HealthCheckResponse_SERVING}, nil
+}
+
+func (s *server) Watch(in *healthpb.HealthCheckRequest, _ healthpb.Health_WatchServer) error {
+	log.Printf("Received Watch request: %v", in)
+	return status.Error(codes.Unimplemented, "unimplemented")
+}
+
 func main() {
 	log.Printf("server created at %s", myIP)
 	lis, err := net.Listen("tcp", port)
@@ -57,6 +70,7 @@ func main() {
 	}
 	s := grpc.NewServer()
 	pb.RegisterGreeterServer(s, &server{})
+	healthpb.RegisterHealthServer(s, &server{})
 	if err := s.Serve(lis); err != nil {
 		log.Fatalf("failed to serve: %v", err)
 	}

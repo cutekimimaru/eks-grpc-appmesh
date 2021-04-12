@@ -11,6 +11,13 @@ spec:
     - portMapping:
         port: 50051
         protocol: grpc
+      healthCheck:
+        port: 50051
+        protocol: grpc
+        healthyThreshold: 2
+        unhealthyThreshold: 3
+        timeoutMillis: 3000
+        intervalMillis: 10000
   serviceDiscovery:
     awsCloudMap:
       namespaceName: kks-backyard-stage.svc.cluster.local

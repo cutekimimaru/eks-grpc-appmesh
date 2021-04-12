@@ -30,7 +30,7 @@ spec:
     spec:
       containers:
       - name: greeter-server
-        image: 038528481894.dkr.ecr.ap-northeast-1.amazonaws.com/greeter_server:v2
+        image: 038528481894.dkr.ecr.ap-northeast-1.amazonaws.com/greeter_server:v6
         imagePullPolicy: Always 
         ports:
         - containerPort: 50051
